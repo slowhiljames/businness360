@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f7fc">
+  <title>Business 360 | Arihant Academy Quiz</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #17223b;
+      background: #f5f7fc;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --navy: #14234a;
+      --blue: #3458cf;
+      --muted: #68738b;
+      --line: #e5e9f2;
+      --green: #168454;
+      --green-bg: #e8f7ef;
+      --red: #c83e4d;
+      --red-bg: #fff0f1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 32px 18px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(ellipse at 12% 10%, rgba(76, 108, 222, .09), transparent 32%),
+        radial-gradient(ellipse at 90% 90%, rgba(23, 132, 84, .07), transparent 30%),
+        #f5f7fc;
+    }
+
+    button { font: inherit; }
+
+    .quiz {
+      width: min(100%, 680px);
+      overflow: hidden;
+      border: 1px solid rgba(222, 228, 240, .9);
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 24px 70px rgba(28, 43, 83, .12);
+    }
+
+    .topbar {
+      padding: 27px 32px 22px;
+      color: white;
+      background: linear-gradient(120deg, #14234a, #293f7b);
+    }
+
+    .eyebrow {
+      margin: 0 0 9px;
+      color: #bac9ff;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.55rem, 5vw, 2.05rem);
+      letter-spacing: -.035em;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: #d4dcf4;
+      font-size: .94rem;
+    }
+
+    .content { padding: 28px 32px 32px; }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 7px;
+      overflow: hidden;
+      border-radius: 10px;
+      background: #edf0f7;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #4165df, #7893f5);
+      transition: width .35s ease;
+    }
+
+    .question {
+      min-height: 75px;
+      margin: 27px 0 20px;
+      color: var(--navy);
+      font-size: clamp(1.12rem, 3vw, 1.34rem);
+      line-height: 1.45;
+      letter-spacing: -.015em;
+    }
+
+    .answers {
+      display: grid;
+      gap: 11px;
+    }
+
+    .answer {
+      width: 100%;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 12px 15px;
+      border: 1.5px solid var(--line);
+      border-radius: 13px;
+      color: #293651;
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .18s ease, background .18s ease, transform .18s ease, box-shadow .18s ease;
+    }
+
+    .answer:not(:disabled):hover {
+      transform: translateY(-1px);
+      border-color: #9baeea;
+      background: #f8f9ff;
+      box-shadow: 0 4px 12px rgba(52, 88, 207, .08);
+    }
+
+    .answer:focus-visible, .next-button:focus-visible {
+      outline: 3px solid rgba(52, 88, 207, .35);
+      outline-offset: 3px;
+    }
+
+    .choice-letter {
+      width: 27px;
+      height: 27px;
+      flex: 0 0 27px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: #596681;
+      background: #f0f2f8;
+      font-size: .78rem;
+      font-weight: 800;
+    }
+
+    .answer.correct {
+      border-color: #4eb687;
+      color: #126a43;
+      background: var(--green-bg);
+      animation: correct-pop .45s ease both;
+    }
+
+    .answer.correct .choice-letter {
+      color: white;
+      background: var(--green);
+    }
+
+    .answer.wrong {
+      border-color: #ed7b84;
+      color: #a82939;
+      background: var(--red-bg);
+      animation: wrong-shake .42s ease both;
+    }
+
+    .answer.wrong .choice-letter {
+      color: white;
+      background: var(--red);
+    }
+
+    .answer:disabled { cursor: default; }
+
+    .feedback {
+      min-height: 27px;
+      margin: 15px 0 0;
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .feedback.is-correct { color: var(--green); }
+    .feedback.is-wrong { color: var(--red); }
+
+    .footer {
+      min-height: 53px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-top: 9px;
+    }
+
+    .next-button {
+      min-width: 132px;
+      padding: 12px 19px;
+      border: 0;
+      border-radius: 11px;
+      color: #fff;
+      background: var(--blue);
+      font-weight: 750;
+      cursor: pointer;
+      transition: background .18s ease, transform .18s ease;
+    }
+
+    .next-button:hover { transform: translateY(-1px); background: #2949b7; }
+    .next-button:disabled { display: none; }
+
+    .result {
+      padding: 18px 0 5px;
+      text-align: center;
+      animation: correct-pop .45s ease both;
+    }
+
+    .result-mark {
+      width: 70px;
+      height: 70px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 17px;
+      border-radius: 22px;
+      color: #fff;
+      background: linear-gradient(145deg, #3458cf, #6a83e8);
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .result h2 { margin: 0; color: var(--navy); font-size: 1.55rem; }
+    .result p { margin: 10px 0 23px; color: var(--muted); line-height: 1.6; }
+    .result .next-button { display: inline-block; }
+
+    @keyframes correct-pop {
+      0% { transform: scale(.97); box-shadow: 0 0 0 0 rgba(22, 132, 84, 0); }
+      55% { transform: scale(1.015); box-shadow: 0 0 0 5px rgba(22, 132, 84, .12); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 132, 84, 0); }
+    }
+
+    @keyframes wrong-shake {
+      0%, 100% { transform: translateX(0); }
+      22% { transform: translateX(-5px); }
+      44% { transform: translateX(5px); }
+      66% { transform: translateX(-3px); }
+      88% { transform: translateX(2px); }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 16px 12px; }
+      .quiz { border-radius: 19px; }
+      .topbar { padding: 23px 21px 19px; }
+      .content { padding: 22px 21px 24px; }
+      .question { min-height: 0; margin-top: 23px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="quiz" aria-labelledby="quiz-title">
+    <header class="topbar">
+      <p class="eyebrow">ICICI Bank Aspire · Business 360</p>
+      <h1 id="quiz-title">Arihant Academy Quiz</h1>
+      <p class="subtitle">A quick check of the key points from the presentation</p>
+    </header>
+
+    <section class="content" aria-live="polite">
+      <div class="progress-row">
+        <span id="question-count">Question 1 of 5</span>
+        <span id="score-count">Score: 0</span>
+      </div>
+      <div class="progress-track" role="progressbar" aria-label="Quiz progress" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div id="quiz-stage">
+        <h2 class="question" id="question-text"></h2>
+        <div class="answers" id="answers"></div>
+        <p class="feedback" id="feedback" aria-live="assertive"></p>
+        <div class="footer">
+          <button class="next-button" id="next-button" type="button" disabled>Next question <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      {
+        prompt: "Which exam-preparation streams are part of Arihant Academy’s offering?",
+        options: ["JEE and NEET", "UPSC and CAT", "SAT and GMAT", "GATE and IELTS"],
+        answer: 0,
+        explanation: "The presentation lists Science preparation for JEE, NEET and MHT-CET."
+      },
+      {
+        prompt: "By how much did revenue grow in FY2023–24?",
+        options: ["12.7%", "22.7%", "31.2%", "41.3%"],
+        answer: 2,
+        explanation: "Revenue increased by 31.2% to ₹3,032.35 lakh."
+      },
+      {
+        prompt: "What happened to profit before tax (PBT) in FY2023–24?",
+        options: ["It rose by 22.7%", "It fell by 22.7%", "It stayed unchanged", "It doubled"],
+        answer: 1,
+        explanation: "PBT fell 22.7% to ₹179.21 lakh, despite revenue growth."
+      },
+      {
+        prompt: "Which digital learning resource is named in the presentation?",
+        options: ["Arihant Edge app", "Arihant Market Hub", "Arihant Scholar Cloud", "Arihant Campus TV"],
+        answer: 0,
+        explanation: "Arihant Edge is described as an app supporting hybrid and digital learning."
+      },
+      {
+        prompt: "Which banking opportunity is proposed for streamlining student fee collection?",
+        options: ["Virtual accounts per student", "Foreign exchange trading", "Trade finance for exports", "Mortgage lending to students"],
+        answer: 0,
+        explanation: "The product map proposes virtual accounts per student for automated fee reconciliation."
+      }
+    ];
+
+    const questionText = document.getElementById("question-text");
+    const answersElement = document.getElementById("answers");
+    const feedbackElement = document.getElementById("feedback");
+    const countElement = document.getElementById("question-count");
+    const scoreElement = document.getElementById("score-count");
+    const progressBar = document.getElementById("progress-bar");
+    const progressTrack = document.querySelector('[role="progressbar"]');
+    const nextButton = document.getElementById("next-button");
+    const stage = document.getElementById("quiz-stage");
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+
+    function renderQuestion() {
+      const question = questions[currentQuestion];
+      answered = false;
+      countElement.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+      scoreElement.textContent = `Score: ${score}`;
+      progressBar.style.width = `${(currentQuestion / questions.length) * 100}%`;
+      progressTrack.setAttribute("aria-valuenow", currentQuestion);
+      questionText.textContent = question.prompt;
+      feedbackElement.textContent = "";
+      feedbackElement.className = "feedback";
+      nextButton.disabled = true;
+      nextButton.innerHTML = currentQuestion === questions.length - 1
+        ? 'See my result <span aria-hidden="true">→</span>'
+        : 'Next question <span aria-hidden="true">→</span>';
+
+      answersElement.replaceChildren();
+      question.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "answer";
+        button.dataset.index = index;
+        button.innerHTML = `<span class="choice-letter">${String.fromCharCode(65 + index)}</span><span></span>`;
+        button.lastElementChild.textContent = option;
+        button.addEventListener("click", () => selectAnswer(index));
+        answersElement.append(button);
+      });
+    }
+
+    function selectAnswer(selectedIndex) {
+      if (answered) return;
+      answered = true;
+      const question = questions[currentQuestion];
+      const buttons = [...answersElement.querySelectorAll(".answer")];
+      buttons.forEach((button, index) => {
+        button.disabled = true;
+        if (index === question.answer) button.classList.add("correct");
+      });
+
+      if (selectedIndex === question.answer) {
+        score++;
+        feedbackElement.textContent = `Correct! ${question.explanation}`;
+        feedbackElement.classList.add("is-correct");
+      } else {
+        buttons[selectedIndex].classList.add("wrong");
+        feedbackElement.textContent = `Not quite. ${question.explanation}`;
+        feedbackElement.classList.add("is-wrong");
+      }
+
+      scoreElement.textContent = `Score: ${score}`;
+      nextButton.disabled = false;
+      nextButton.focus();
+    }
+
+    function showResult() {
+      progressBar.style.width = "100%";
+      progressTrack.setAttribute("aria-valuenow", questions.length);
+      countElement.textContent = "Quiz complete";
+      scoreElement.textContent = `Score: ${score} / ${questions.length}`;
+      const message = score === questions.length
+        ? "Excellent work — you know the key facts from the presentation."
+        : score >= 3
+          ? "Nice job. You’ve got a good grasp of the main takeaways."
+          : "Good start. Review the presentation highlights and give it another try.";
+      stage.innerHTML = `
+        <div class="result">
+          <div class="result-mark" aria-hidden="true">${score === questions.length ? "✓" : score}</div>
+          <h2>${score === questions.length ? "Perfect score!" : "Quiz complete!"}</h2>
+          <p>You got <strong>${score} out of ${questions.length}</strong> correct.<br>${message}</p>
+          <button class="next-button" id="restart-button" type="button">Try again <span aria-hidden="true">↻</span></button>
+        </div>`;
+      document.getElementById("restart-button").addEventListener("click", () => {
+        currentQuestion = 0;
+        score = 0;
+        renderQuestion();
+      });
+      document.getElementById("restart-button").focus();
+    }
+
+    nextButton.addEventListener("click", () => {
+      if (!answered) return;
+      if (currentQuestion === questions.length - 1) {
+        showResult();
+        return;
+      }
+      currentQuestion++;
+      renderQuestion();
+      questionText.focus();
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
